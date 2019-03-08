@@ -14,25 +14,22 @@ port = serial.Serial("/dev/ttyACM0", baudrate=9600, timeout=None)
  
 def send_data():
     while True:
-        time.sleep(10)
         line = port.readline()
         arr = line.split()
-
-        headers = {"Content-typZZe": "application/x-www-form-urlencoded","Accept": "text/plain"}
-        params = urllib.urlencode({'field1': temp, 'key':key })
-        conn = httplib.HTTPConnection("api.thingspeak.com:80")
         
-        if 'inside' in arr:
-            gps_lat = 0.0
-            gps_lon = 0.0
-            vib_data = float(arr[2])
+        
+        if arr[0] == 'IN':
+            gps_data = "NO RESPONSE"
+            vib_data = float(arr[1])
 
                 
 
-        if 'outside' in arr:
-            gps_lat = float(arr[2])
-            gps_lon = float(arr[3])
-            vib_data = float(arr[5])
+        elif arr[0] == 'OUT':
+            gps_data = arr[1]
+            vib_data = float(arr[2])
+
+        else:
+            continue
 
 
         try:
@@ -47,7 +44,8 @@ def send_data():
  
             # sending data to Node.js, ip by using ifconfig
             print "[+] Node.js"
-            r = requests.get('http://localhost:3000/logone', params={'data':vib_data, 'lat':gps_lat, 'lon':gps_lon})
+            payload = {'data':vib_data, 'gps':gps_data}
+            r = requests.get('http://localhost:3000/logone', params=payload)
             print r.status_code
  
         except:
@@ -56,7 +54,8 @@ def send_data():
  
  
 if __name__ == "__main__":
+
+    time.sleep(10)
     
     while True:
         send_data()
-        time.sleep(5)
