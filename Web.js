@@ -11,7 +11,7 @@ mysql =require('mysql');
 
 var connection = mysql.createConnection({
 	host: 'localhost',
-	user: 'sensor2',
+	user: 'sensor',
 	password: '1111',
 	database: 'data'
 })
@@ -60,7 +60,7 @@ function get_post(cmd, r, req,res)
 app.get("/data", function(req, res) {
 	console.log("params="+req.query);
 	
-	var qstr = 'SELECT * FROM sensor where tme > date_sub(now(),INTERVAL 1 DAY)';
+	var qstr = 'SELECT * FROM sensor where time > date_sub(now(),INTERVAL 1 DAY)';
 	
 	connection.query(qstr, function(err, rows, cols) {
 		if(err) {
@@ -77,7 +77,7 @@ app.get("/data", function(req, res) {
 		
 		for(var i=0; i<rows.length; i++) {
 			html += "<tr><td>"+JSON.stringify(rows[i]['seq']) + 
-			"<td>"+JSON.stringify(rows[i]['tme'])+"<td>"+JSON.stringify(rows[i]['value'])+"<td>"+JSON.stringify(rows[i]['location']);
+			"<td>"+JSON.stringify(rows[i]['time'])+"<td>"+JSON.stringify(rows[i]['value'])+"<td>"+JSON.stringify(rows[i]['location']);
 						}
 			html += "</table>";
 			html+="</body></html>";
@@ -91,8 +91,7 @@ app.get('/logone', function(req, res){
 	
 	r = {};
 	r.seq = i;
-	r.device='101';
-	r.unit='0';
+	r.device='raspberrypi01';
 	r.location=req.query.gps;
 	r.ip = req.ip;
 	r.value = req.query.data;
@@ -118,10 +117,9 @@ app.get('/logone', function(req, res){
 
 app.post('/logone', function(req, res){
 	r= {};
-	r.seq=1;
+	r.seq= 1;
 	r.location=req.query.gps;
-	r.device='101';
-	r.unit='0';
+	r.device='raspberrypi01';
 	r.ip = req.ip;
 	r.value = req.query.data;
 	
